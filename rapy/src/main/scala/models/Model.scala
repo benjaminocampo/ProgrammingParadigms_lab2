@@ -9,9 +9,10 @@ trait ModelCompanion[M <: Model[M]] {
 
   def find(id: Int): Option[M] = dbTable.instances.get(id)
 
-  def exists(attr: String, value: Any): Boolean = ???
+  def exists(attr: String, value: Any): Boolean = 
+    all.exists(m => m.toMap(attr) == value)
 
-  def delete(id: Int): Unit = { ??? }
+  def delete(id: Int): Unit = dbTable.delete(id)
 
   def filter(mapOfAttributes: Map[String, Any]): List[M] = ???
 }
