@@ -47,6 +47,47 @@ object RestfulAPIServer extends MainRoutes  {
     JSONResponse(consumer.id)
   }
 
+  @get("/api/providers")
+  def providers(locationName: String = ""): Response = {
+    if (locationName.isEmpty()) {
+      return JSONResponse(Provider.all.map(p => p.toMap))
+    }
+    if (!(Location.exists("name", locationName))) {
+      return JSONResponse("non existing location", 404)
+    }
+    val locationId = Location.getLocationId(locationName)
+    JSONResponse(
+      (Provider.all.filter(p => 
+        p.toMap("locationId") == locationId)).map(p => p.toMap))
+  }
+
+  @postJson("/api/providers")
+  def providers(
+    username: String, 
+    storeName: String, 
+    locationName: String, 
+    maxDeliveryDistance: Int): Response = {
+    if (maxDeliveryDistance < 0) {
+      return JSONResponse("negative maxDeliveryDistance", 400)
+    }
+    if (!(Location.exists("name", locationName))) {
+      return JSONResponse("non existing location", 404)
+    }
+    if (  (Consumer.exists("username", username))
+       || (Provider.exists("username", username))
+       || (Provider.exists("storeName", storeName))) {
+      return JSONResponse("existing username/storeName", 409)
+    }
+    val provider = Provider(
+      username, 
+      Location.getLocationId(locationName), 
+      storeName, 
+      maxDeliveryDistance
+    )
+    provider.save()
+    JSONResponse(provider.id) 
+  }
+
   override def main(args: Array[String]): Unit = {
     System.err.println("\n " + "=" * 39)
     System.err.println(s"| Server running at http://$host:$port ")
