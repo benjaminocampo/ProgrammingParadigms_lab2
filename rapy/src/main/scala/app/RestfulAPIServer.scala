@@ -88,6 +88,21 @@ object RestfulAPIServer extends MainRoutes  {
     JSONResponse(provider.id) 
   }
 
+  @post("/api/users/delete/:username")
+  def delete(username: String) : Response = {
+    if (Consumer.exists("username", username)){
+      Consumer.delete(Consumer.getId("username", username))
+      return JSONResponse("OK")
+    }
+
+    if (Provider.exists("username", username)){
+      Provider.delete(Provider.getId("username", username))
+      return JSONResponse("OK")
+    }
+
+    JSONResponse("Non existing user", 404)
+  }
+
   override def main(args: Array[String]): Unit = {
     System.err.println("\n " + "=" * 39)
     System.err.println(s"| Server running at http://$host:$port ")
