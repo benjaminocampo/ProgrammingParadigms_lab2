@@ -28,6 +28,25 @@ object RestfulAPIServer extends MainRoutes  {
     JSONResponse(location.id)
   }
 
+  @get("/api/consumers")
+  def consumers(): Response = {
+    JSONResponse(Consumer.all.map(c => c.toMap))
+  }
+
+  @postJson("api/consumers")
+  def consumers(username: String, locationName: String): Response = {
+    if (  Consumer.exists("username", username) 
+       || Provider.exists("username", username)) {
+      return JSONResponse("existing username", 409)
+    }
+    if (!(Location.exists("name", locationName))) {
+      return JSONResponse("non existing location", 404)
+    }
+    val consumer = Consumer(username, Location.getLocationId(locationName))
+    consumer.save()
+    JSONResponse(consumer.id)
+  }
+
   override def main(args: Array[String]): Unit = {
     System.err.println("\n " + "=" * 39)
     System.err.println(s"| Server running at http://$host:$port ")
