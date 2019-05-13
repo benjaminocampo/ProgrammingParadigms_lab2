@@ -174,6 +174,39 @@ object RestfulAPIServer extends MainRoutes  {
     case None => JSONResponse("non existing order", 404)
   }
 
+  @postJson("/api/orders")
+  def createOrder(
+    providerUsername: String,
+    consumerUsername: String,
+    items: List[ItemsToOrder]): Response = {
+    val itemsToOrder = items.map(pedido => (pedido.name, pedido.amount))
+    
+    if (!itemsToOrder.forall({case (name, amount) => amount >= 0})){
+      return JSONResponse("negative amount", 400)
+    }
+    if (  !Provider.exists("username", providerUsername) 
+       || !Consumer.exists("username", consumerUsername)
+       || !itemsToOrder.forall({case (name, amount) => Item.exists("name", name)})){
+        return JSONResponse("non existing consumer/provider/item for provider")
+      }
+    val order = Order(providerUsername, consumerUsername, itemsToOrder)
+    order.save()
+    val consumer = Consumer.filter(Map("username" -> consumerUsername)).head 
+    consumer.decrement(order.totalPrice)
+    val provider = Provider.filter(Map("username" -> providerUsername)).head 
+    provider.increment(order.totalPrice)
+    JSONResponse(order.id)
+  }
+
+  @post("/api/orders/delete/:id")
+  def deleteOrder(id: Int): Response = Order.find(id) match {
+    case Some(order) => {
+      Order.delete(id)
+      JSONResponse("OK")
+    }
+    case None => JSONResponse("non existing order")
+  }
+
   override def main(args: Array[String]): Unit = {
     System.err.println("\n " + "=" * 39)
     System.err.println(s"| Server running at http://$host:$port ")
