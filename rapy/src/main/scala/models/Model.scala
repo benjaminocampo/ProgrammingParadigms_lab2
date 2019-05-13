@@ -14,7 +14,14 @@ trait ModelCompanion[M <: Model[M]] {
 
   def delete(id: Int): Unit = dbTable.delete(id)
 
-  def filter(mapOfAttributes: Map[String, Any]): List[M] = ???
+  def filter(mapOfAttributes: Map[String, Any]): List[M] = 
+    all.filter(m => mapOfAttributes.toSet.subsetOf(m.toMap.toSet))
+
+  def getId(attr: String, value: Any): Int = {
+    all.find(m => m.toMap(attr) == value) match {
+      case Some(x) => x.id
+    }
+  }
 }
 
 trait Model[M <: Model[M]] { self: M =>
