@@ -151,6 +151,29 @@ object RestfulAPIServer extends MainRoutes  {
     case None => JSONResponse("non existing item")
   }
 
+  @get("/api/orders")
+  def orders(username: String): Response = {
+    if (Provider.exists("username", username)){  
+      val orders = Order.filter(
+        Map("providerId" -> Provider.getId("username", username)))
+      return JSONResponse(orders.map(order => order.toMap))
+    }
+    if (Consumer.exists("username", username)){
+      Order.filter(
+        Map("consumerUsername" -> Consumer.getId("username", username)))
+      val orders = Order.filter(Map("consumerUsername" -> username))
+
+      return JSONResponse(orders.map(order => order.toMap))
+    }
+    JSONResponse("non existing user", 404)
+  }
+
+  @get("/api/orders/detail/:id")
+  def detail(id: Int): Response = Order.find(id) match {
+    case Some(order) => JSONResponse(order.toMapDetail)
+    case None => JSONResponse("non existing order", 404)
+  }
+
   override def main(args: Array[String]): Unit = {
     System.err.println("\n " + "=" * 39)
     System.err.println(s"| Server running at http://$host:$port ")
