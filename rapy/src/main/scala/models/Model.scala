@@ -22,6 +22,12 @@ trait ModelCompanion[M <: Model[M]] {
       case Some(x) => x.id
     }
   }
+
+  def getValueById(id: Int, attr: String): Any = {
+    all.find(m => m.toMap("id") == id) match {
+      case Some(x) => x.toMap(attr)
+    }
+  }
 }
 
 trait Model[M <: Model[M]] { self: M =>
