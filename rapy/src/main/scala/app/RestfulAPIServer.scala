@@ -103,6 +103,45 @@ object RestfulAPIServer extends MainRoutes  {
     JSONResponse("Non existing user", 404)
   }
 
+  @get("/api/items/")
+  def items(providerUsername: String = ""):Response = {
+    if (providerUsername.isEmpty()) {
+      return JSONResponse(Item.all.map(p => p.toMap))
+    }
+    if (!Provider.exists("username", providerUsername)){
+      return JSONResponse("non existing provider", 404)
+    }
+    val items = Item.filter(
+        Map("providerId" -> Provider.getId("username", providerUsername)))
+    JSONResponse(items.map(item => item.toMap))
+  }
+
+  @postJson("/api/items")
+  def items(
+    name: String,
+    description: String,
+    price: Float,
+    providerUsername: String): Response = {
+    if (price < 0){
+      return JSONResponse("negative price")
+    }
+    if (!Provider.exists("username", providerUsername)){
+      return JSONResponse("non existing provider", 404)
+    }
+    val items = Item.filter(
+      Map("providerId" -> Provider.getId("username", providerUsername))
+    )
+    if (items.exists(item => item.name == name)){
+      return JSONResponse("existing item for provider", 409)
+    }
+
+    val item = Item(
+      name, description, price, Provider.getId("username", providerUsername)
+    )
+    item.save()
+    JSONResponse(item.id)  
+  }
+
   override def main(args: Array[String]): Unit = {
     System.err.println("\n " + "=" * 39)
     System.err.println(s"| Server running at http://$host:$port ")
