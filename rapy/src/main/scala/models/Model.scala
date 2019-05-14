@@ -20,12 +20,14 @@ trait ModelCompanion[M <: Model[M]] {
   def getId(attr: String, value: Any): Int = {
     all.find(m => m.toMap(attr) == value) match {
       case Some(x) => x.id
+      case None => -1
     }
   }
 
   def getValueById(id: Int, attr: String): Any = {
     all.find(m => m.toMap("id") == id) match {
       case Some(x) => x.toMap(attr)
+      case None => -1
     }
   }
 }

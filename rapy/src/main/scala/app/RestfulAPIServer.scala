@@ -207,6 +207,20 @@ object RestfulAPIServer extends MainRoutes  {
     case None => JSONResponse("non existing order")
   }
 
+  @post("/api/orders/deliver/:id")
+  def deliverOrder(id: Int): Response = Order.find(id) match {
+    case Some(order) => {
+      if (order.getStatus == "payed"){        
+        order.changeStatus("delivered")
+        JSONResponse("OK")
+      } else {
+        JSONResponse("order delivered/finished", 405)
+      }
+      
+    }
+    case None => JSONResponse("non existing order")
+  }
+
   override def main(args: Array[String]): Unit = {
     System.err.println("\n " + "=" * 39)
     System.err.println(s"| Server running at http://$host:$port ")
