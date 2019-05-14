@@ -232,10 +232,10 @@ object RestfulAPIServer extends MainRoutes  {
         if (order.getStatus() != "delivered") {
           return JSONResponse("order not delivered", 405)
         }
-        order.comment(comment)
         val providerId = Provider.getId("username", order.providerUsername) 
         Provider.find(providerId) match {
           case Some(provider) => {
+            order.comment(comment)
             provider.rate(punctuation)
             order.changeStatus("finished")
             JSONResponse("OK")
