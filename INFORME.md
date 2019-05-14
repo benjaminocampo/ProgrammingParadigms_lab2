@@ -250,3 +250,40 @@ Therefore, if *find(id)* gives some(the_order) then we know it exists and we pro
 If *find(id)* gives None then we know that the order does not exist and we return an error message.
 
 (#) *find(orderId)* returns Some(order) when the order, whose id is *orderId*, is found and returns None when the order is not found.
+
+--------------------------------------------------------------------------------------------------------------------------------
+
+The last two endpoints belong to the exta assignment.
+
+**@postJson("/api/orders/comment")**  
+*def comment(orderId: Int, comment: String, punctuation: Int)*  
+
+This method adds a comment to an order, and also rates such order. Orders can only be commented when they are in the *delivered* state.
+
+We have to make sure of the following:
+
+- that *punctuation* is between 1 and 5.
+- for provider as well as the order, to exist.
+- that the order's state is no other than *delivered*.
+
+First, we ask if punctuation is in range, and if not, then we return an error message.
+Then, if *punctuation* is valid, we are to find out if such order given by *orderId* actually exists, for this we use *find* (#). 
+So, if *find(orderId)* gives *Some(the_order)* then we know the order exists and we proceed. If *find(orderId)* gives None, then the order doesn't exist, and we simply return an error message.
+Assume the order exists, then our next step is to make sure that the order's state is *delivered*. If it's not the case, the we simply return an error message because we only want that orders be commented only when they are exactly in the *delivered* state and not in *payed* nor *finished*.
+So if the order's state is *delivered*, our next step is to verify that the order's corresponding provider exists (it can happen that the provider got deleted but the order is still around). If the provider doesn't exist, we return an error message.
+
+It is just when we are sure of all the above that we can begin to comment. So, if all the checks went fine, the comment is done by the method *comment* (from *Order*). Then, the punctuation is made to the provider by the method *rate* (*rate* takes an average of all the punctuations ever made. This is the provider's rating). Then, the order's state is changed to *finished*, and finally *comment* returns.
+
+(#) *find(orderId)* returns Some(order) when the order whose id is *orderId* is found and returns None when the order is not found.
+
+**@get("/api/provider/perfil/:username")**  
+*def perfil(username: String)*  
+  
+This method gives the provider's perfil page.
+
+First, we are to make sure that the provider given by *username* actually exists. If this is not, then we return an error message.
+We have the provider's username, but we want the provider itself, i.e the actual object, this is because to show the provider's info we need to call *provider.toMap*.
+
+The provider's perfil will consist of the information shown by *toMap*, all the comments ever made to it, and its rating.
+
+Since comments are done to orders and not to providers, we obtain the comments by filtering the provider's finished orders from all the orders, and then taking the comment of each filtered order. The result of this is a list of comments, each one corresponding to a finished order.
