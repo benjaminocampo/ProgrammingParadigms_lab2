@@ -42,6 +42,8 @@ class Order(
   val item: List[(String, Int)]
 ) extends Model[Order] {
 
+  protected var theComment: String = ""
+
   private val consumerId = Consumer.getId("username", consumerUsername)
   
   private val providerId = Provider.getId("username", providerUsername)
@@ -91,4 +93,8 @@ class Order(
   }
 
   override def toString: String = s"Order: $id"
+
+  def comment(comment: String): Unit =  this.theComment = comment
+
+  def showComment(): Any = this.theComment
 }

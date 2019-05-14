@@ -25,6 +25,8 @@ class Provider(
   val maxDeliveryDistance: Int
 ) extends Model[Provider] with User {
 
+  protected var rating: Float = 0
+
   protected def dbTable: DatabaseTable[Provider] = Provider.dbTable
     
   override def toMap: Map[String, Any] = 
@@ -36,4 +38,11 @@ class Provider(
       "balance" -> balance)
     
   override def toString: String = s"Provider: $username"
+
+  def rate(punctuation: Int): Unit = { 
+    if(this.rating == 0 ) this.rating = punctuation
+    else this.rating = (this.rating + punctuation) / 2
+  }
+
+  def getRating(): Float = this.rating
 }
