@@ -104,6 +104,15 @@ http GET http://localhost:4000/api/orders/ username=="Ben1"
 http GET http://localhost:4000/api/orders/ username=="Ben2"
 http GET http://localhost:4000/api/orders/ username=="Ben3"
 
+echo "Agregando comentario a una orden"                                         
+http POST http://localhost:4000/api/orders/comment/ orderId:=1 comment="Llego aplastadas las empanadas, estoy furiosisimo" punctuation:=1
+http POST http://localhost:4000/api/orders/comment/ orderId:=2 comment="Llego aplastadas las empanadas, todo mal" punctuation:=5
+http POST http://localhost:4000/api/orders/comment/ orderId:=4 comment="Banana podrida 0 puntos" punctuation:=5
+                                                                                 
+echo "Viendo perfiles de los providers"                                         
+http GET http://localhost:4000/api/provider/perfil/McDonalds                    
+http GET http://localhost:4000/api/provider/perfil/PizzaHart   
+
 echo "Eliminando Items"
 http POST http://localhost:4000/api/items/delete/1
 http POST http://localhost:4000/api/items/delete/2
@@ -121,7 +130,6 @@ http POST http://localhost:4000/api/users/delete/McDonalds
 
 echo "Mostrando Prviders luego de haber eliminado usuario"
 http GET http://localhost:4000/api/providers/
-
 
 echo "Eliminando Ordenes"
 http POST http://localhost:4000/api/orders/delete/1
