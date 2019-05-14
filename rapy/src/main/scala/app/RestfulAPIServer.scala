@@ -123,7 +123,7 @@ object RestfulAPIServer extends MainRoutes  {
     price: Float,
     providerUsername: String): Response = {
     if (price < 0){
-      return JSONResponse("negative price")
+      return JSONResponse("negative price", 400)
     }
     if (!Provider.exists("username", providerUsername)){
       return JSONResponse("non existing provider", 404)
@@ -148,7 +148,7 @@ object RestfulAPIServer extends MainRoutes  {
       Item.delete(id)
       JSONResponse("OK")
     }
-    case None => JSONResponse("non existing item")
+    case None => JSONResponse("non existing item", 404)
   }
 
   @get("/api/orders")
@@ -187,7 +187,7 @@ object RestfulAPIServer extends MainRoutes  {
     if (  !Provider.exists("username", providerUsername) 
        || !Consumer.exists("username", consumerUsername)
        || !itemsToOrder.forall({case (name, amount) => Item.exists("name", name)})){
-        return JSONResponse("non existing consumer/provider/item for provider")
+        return JSONResponse("non existing consumer/provider/item for provider", 404)
       }
     val order = Order(providerUsername, consumerUsername, itemsToOrder)
     order.save()
@@ -204,7 +204,7 @@ object RestfulAPIServer extends MainRoutes  {
       Order.delete(id)
       JSONResponse("OK")
     }
-    case None => JSONResponse("non existing order")
+    case None => JSONResponse("non existing order", 404)
   }
 
   @post("/api/orders/deliver/:id")
@@ -218,7 +218,7 @@ object RestfulAPIServer extends MainRoutes  {
       }
       
     }
-    case None => JSONResponse("non existing order")
+    case None => JSONResponse("non existing order", 404)
   }
 
   override def main(args: Array[String]): Unit = {
